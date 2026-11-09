@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h1>Salidas</h1>
+<form method="post" class="formulario">
+  <div class="campo">
+    <label for="codigo">Código del mueble</label>
+    <input id="codigo" name="codigo" type="text" value="{{ valores.codigo }}" autofocus>
+  </div>
+  <div class="campo">
+    <label for="cantidad">Cantidad</label>
+    <input id="cantidad" name="cantidad" type="text" inputmode="numeric" value="{{ valores.cantidad }}">
+  </div>
+  <button type="submit" class="boton principal">Continuar</button>
+</form>
+<p class="ayuda">Código: color.modelo, del 1.1 al 4.4 (1 blanco, 2 negro, 3 grafito, 4 gris).</p>
+
+{% if error %}<p class="mensaje error">{{ error }}</p>{% endif %}
+
+{% if detalle %}
+  {% if faltantes %}
+  <!-- RF-05 / RN-01: si falta stock de algun material no se descuenta nada -->
+  <div class="mensaje error">
+    <p><strong>Stock insuficiente.</strong> No se puede registrar la salida:</p>
+    <ul>
+      {% for m in faltantes %}
+      <li>{{ 'Falta' if m.faltante == 1 else 'Faltan' }} {{ m.faltante|con_unidad(m.unidad) }} de {{ m.nombre }}.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <!-- RF-03: antes de confirmar se muestra que se va a descontar -->
+  <div class="detalle">
+    <p><strong>{{ mueble.descripcion }} × {{ valores.cantidad }}: se van a descontar</strong></p>
+    <ul>
+      {% for m in detalle %}
+      <li>{{ m.necesario|con_unidad(m.unidad) }} de {{ m.nombre }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <!-- RF-04: la confirmacion y el descuento se completan en la proxima etapa del desarrollo -->
+  <p class="pendiente">Confirmación de la salida: en desarrollo.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

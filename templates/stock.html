@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h1>Stock</h1>
+<table class="tabla">
+  <thead>
+    <tr><th>Material</th><th>Stock</th><th>Unidad</th><th>Mínimo</th><th>Estado</th></tr>
+  </thead>
+  <tbody>
+    {# RN-04: en o por debajo del minimo la fila se resalta y el estado dice Reponer (no depende solo del color) #}
+    {% for m in materiales %}
+    <tr class="{{ 'alerta' if m.alerta }}">
+      <td>{{ m.nombre }}</td>
+      <td>{{ m.stock }}</td>
+      <td>{{ m.unidad }}</td>
+      <td>{{ m.minimo }}</td>
+      <td>{{ 'Reponer' if m.alerta else 'OK' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

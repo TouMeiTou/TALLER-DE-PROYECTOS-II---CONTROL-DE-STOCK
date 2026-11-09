@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de Stock</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+  <main class="ventana">
+    <!-- Menu fijo para pasar de una pantalla a otra -->
+    <nav class="menu">
+      <a href="{{ url_for('salidas') }}" class="{{ 'activo' if pantalla == 'salidas' }}">Salidas</a>
+      <a href="{{ url_for('ingresos') }}" class="{{ 'activo' if pantalla == 'ingresos' }}">Ingresos</a>
+      <a href="{{ url_for('stock') }}" class="{{ 'activo' if pantalla == 'stock' }}">Stock</a>
+    </nav>
+    <section class="contenido">
+      {% block contenido %}{% endblock %}
+    </section>
+  </main>
+</body>
+</html>

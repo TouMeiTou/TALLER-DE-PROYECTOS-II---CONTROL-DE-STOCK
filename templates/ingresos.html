@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h1>Ingresos</h1>
+<form method="post" class="formulario">
+  <div class="campo">
+    <label for="material">Material</label>
+    <select id="material" name="material" autofocus>
+      <option value="">Seleccione un material</option>
+      {% for m in materiales %}
+      <option value="{{ m.codigo }}" {{ 'selected' if valores.material == m.codigo }}>{{ m.nombre }} ({{ m.unidad }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo">
+    <label for="cantidad">Cantidad</label>
+    <input id="cantidad" name="cantidad" type="text" inputmode="numeric" value="{{ valores.cantidad }}">
+  </div>
+  <button type="submit" class="boton principal">Registrar</button>
+</form>
+<p class="ayuda">La cantidad se carga en la unidad del material: unidades, metros o pares.</p>
+
+{% if error %}<p class="mensaje error">{{ error }}</p>{% endif %}
+{% if mensaje %}<p class="mensaje ok">{{ mensaje }}</p>{% endif %}
+{% endblock %}
