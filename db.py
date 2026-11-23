@@ -173,3 +173,34 @@ def registrar_ingreso(conexion, codigo_material, cantidad):
     )
     conexion.commit()
     return stock_de(conexion, codigo_material)
+
+
+def registrar_salida(conexion, codigo_mueble, cantidad):
+    """Registra la venta de un mueble y descuenta su receta x cantidad (RF-04, RF-08).
+
+    Todo se guarda en una unica transaccion (RNF-03): o se descuentan todos los
+    materiales, o ninguno. Si falta stock de algun material no se registra nada
+    (RN-01) y se devuelve False. Si se registro, devuelve True.
+    """
+    detalle = receta_por_cantidad(conexion, codigo_mueble, cantidad)
+    if any(m["faltante"] > 0 for m in detalle):  # se vuelve a verificar antes de guardar
+        return False
+
+    fecha_hora = _ahora()  # todos los movimientos de la salida llevan la misma fecha y hora
+    with conexion:  # confirma al terminar el bloque; si algo falla, deshace todo
+        for m in detalle:
+            conexion.execute(
+                """
+                INSERT INTO movimientos (fecha_hora, tipo, codigo_material, cantidad, codigo_mueble)
+                VALUES (?, 'SALIDA', ?, ?, ?)
+                """,
+                (fecha_hora, m["codigo"], m["necesario"], codigo_mueble),
+            )
+    return True
+
+
+def materiales_en_alerta(conexion, codigo_mueble):
+    """Materiales de la receta del mueble que quedaron en o por debajo del minimo (RF-07, RN-04)."""
+    codigos = [fila["codigo_material"] for fila in conexion.execute(
+        "SELECT codigo_material FROM recetas WHERE codigo_mueble = ?", (codigo_mueble,))]
+    return [m for m in stock_actual(conexion) if m["codigo"] in codigos and m["alerta"]]
