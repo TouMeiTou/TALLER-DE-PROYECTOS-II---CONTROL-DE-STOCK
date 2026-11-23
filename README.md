@@ -36,6 +36,17 @@ Para hacer una copia de seguridad, alcanza con copiar ese archivo.
 | `datos_iniciales.py` | Materiales, muebles y recetas |
 | `templates/` | Pantallas en HTML |
 | `static/estilos.css` | Estilos |
+| `test_app.py` | Pruebas automáticas |
+
+## Pruebas
+
+Las pruebas automáticas usan una base temporal, así que no modifican `stock.db`:
+
+```
+.venv\Scripts\python -m unittest -v
+```
+
+Incluyen pruebas de unidad (base de datos, recetas, descuento y alertas) y de sistema (pantallas y validaciones).
 
 ## Estado del desarrollo
 
@@ -45,5 +56,5 @@ Para hacer una copia de seguridad, alcanza con copiar ese archivo.
 | Pantalla Stock con alertas de mínimo (RF-06, RF-07) | Terminado |
 | Pantalla Ingresos (RF-01, RF-08) | Terminado |
 | Pantalla Salidas: validación, detalle a descontar y control de stock (RF-02, RF-03, RF-05) | Terminado |
-| Pantalla Salidas: confirmación y descuento (RF-04) y alerta al registrar (RF-07) | En desarrollo |
-| Pruebas | Pendiente |
+| Pantalla Salidas: confirmación y descuento (RF-04) y alerta al registrar (RF-07) | Terminado |
+| Pruebas automáticas de unidad y de sistema | Terminado |
