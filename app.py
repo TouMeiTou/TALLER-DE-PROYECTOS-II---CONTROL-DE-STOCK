@@ -104,13 +104,16 @@ def salidas():
 
     Paso 1 (Continuar): valida el codigo y la cantidad, calcula la receta x cantidad
     y verifica que alcance el stock de todos los materiales (RF-02, RF-03, RF-05, RN-01).
-    Paso 2 (Confirmar): pendiente para la proxima etapa del desarrollo (RF-04, RF-07).
+    Paso 2 (Confirmar): descuenta los materiales (RF-04) y avisa si alguno quedo
+    en o por debajo del minimo (RF-07). Cancelar vuelve a la pantalla sin descontar.
     """
     conexion = db.conectar()
     error = None
     detalle = None
     mueble = None
     faltantes = []
+    mensaje = None
+    alertas = []
     valores = {"codigo": "", "cantidad": ""}
 
     if request.method == "POST":
@@ -123,13 +126,32 @@ def salidas():
             error = "El código ingresado no existe."
         elif cantidad is None:
             error = "La cantidad debe ser un número entero mayor a cero."
+        elif request.form.get("accion") == "confirmar":
+            # Paso 2: el usuario confirmo la salida.
+            if db.registrar_salida(conexion, mueble["codigo"], cantidad):
+                conexion.close()
+                # Igual que en Ingresos: se redirige para que recargar la pagina no duplique la salida.
+                return redirect(url_for("salidas", registrada=mueble["codigo"], cantidad=cantidad))
+            # Si entre el paso 1 y el 2 cambio el stock, se vuelven a mostrar los faltantes.
+            detalle = db.receta_por_cantidad(conexion, mueble["codigo"], cantidad)
+            faltantes = [m for m in detalle if m["faltante"] > 0]
         else:
+            # Paso 1: vista previa de lo que se va a descontar.
             detalle = db.receta_por_cantidad(conexion, mueble["codigo"], cantidad)
             faltantes = [m for m in detalle if m["faltante"] > 0]  # RN-01
 
+    else:
+        # Mensaje de confirmacion y alertas de minimo despues de registrar una salida.
+        registrada = db.obtener_mueble(conexion, request.args.get("registrada", ""))
+        if registrada is not None:
+            mensaje = (f"Salida registrada: {registrada['descripcion']} × "
+                       f"{request.args.get('cantidad', '')}. Se descontaron los materiales.")
+            alertas = db.materiales_en_alerta(conexion, registrada["codigo"])
+
     conexion.close()
     return render_template("salidas.html", error=error, detalle=detalle, mueble=mueble,
-                           faltantes=faltantes, valores=valores, pantalla="salidas")
+                           faltantes=faltantes, mensaje=mensaje, alertas=alertas,
+                           valores=valores, pantalla="salidas")
 
 
 # La base se crea (con sus datos iniciales) al iniciar la aplicacion, si no existe.
