@@ -37,8 +37,27 @@
       {% endfor %}
     </ul>
   </div>
-  <!-- RF-04: la confirmacion y el descuento se completan en la proxima etapa del desarrollo -->
-  <p class="pendiente">Confirmación de la salida: en desarrollo.</p>
+  <!-- RF-04: Confirmar descuenta los materiales; Cancelar vuelve sin descontar nada -->
+  <form method="post" class="botones">
+    <input type="hidden" name="codigo" value="{{ valores.codigo }}">
+    <input type="hidden" name="cantidad" value="{{ valores.cantidad }}">
+    <button type="submit" name="accion" value="confirmar" class="boton principal">Confirmar</button>
+    <a href="{{ url_for('salidas') }}" class="boton">Cancelar</a>
+  </form>
   {% endif %}
+{% endif %}
+
+{% if mensaje %}<p class="mensaje ok">{{ mensaje }}</p>{% endif %}
+
+{% if alertas %}
+<!-- RF-07 / RN-04: materiales que quedaron en o por debajo del minimo -->
+<div class="mensaje alerta">
+  <p><strong>Atención: reponer stock.</strong></p>
+  <ul>
+    {% for m in alertas %}
+    <li>{{ m.nombre }}: quedan {{ m.stock|con_unidad(m.unidad) }} (mínimo {{ m.minimo }}).</li>
+    {% endfor %}
+  </ul>
+</div>
 {% endif %}
 {% endblock %}
